@@ -9,7 +9,7 @@
 <style scoped lang="scss">
 h1 {
   color: white;
-  font-size: 20px;
+  font-size: 28px;
 }
 .hero-background {
   background: linear-gradient(135deg, #2b2dff 0%, #5757d1 50%, #6c3aff 100%);

@@ -1,13 +1,19 @@
 <script setup>
-import TheWelcome from './components/TheWelcome.vue';
+import IPSearchBar from './components/IPSearchBar.vue';
 </script>
 
 <template>
   <header></header>
 
   <main>
-    <TheWelcome />
+    <IPSearchBar />
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+</style>
