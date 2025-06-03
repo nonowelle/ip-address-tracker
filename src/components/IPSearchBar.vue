@@ -9,19 +9,31 @@
   <div class="ip-info">
     <div class="ip-info-item">
       <h4>IP Address</h4>
-      <p class="result">Result</p>
+      <p class="result">
+        <span v-if="isLoading" class="loading-spinner"></span>
+        <span v-else>{{ ipAddress || 'No data' }}</span>
+      </p>
     </div>
     <div class="ip-info-item">
       <h4>Location</h4>
-      <p class="result">Result</p>
+      <p class="result">
+        <span v-if="isLoading" class="loading-spinner"></span>
+        <span v-else>{{ location || 'No data' }}</span>
+      </p>
     </div>
     <div class="ip-info-item">
       <h4>Timezone</h4>
-      <p class="result">Result</p>
+      <p class="result">
+        <span v-if="isLoading" class="loading-spinner"></span>
+        <span v-else>{{ timezone || 'No data' }}</span>
+      </p>
     </div>
     <div class="ip-info-item">
       <h4>ISP</h4>
-      <p class="result">Result</p>
+      <p class="result">
+        <span v-if="isLoading" class="loading-spinner"></span>
+        <span v-else>{{ isp || 'No data' }}</span>
+      </p>
     </div>
   </div>
   <div id="map" class="map"></div>
@@ -31,29 +43,89 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
 const map = ref(null);
+const ipAddress = ref('');
+const location = ref('');
+const timezone = ref('');
+const isp = ref('');
+const isLoading = ref(false);
+const currentMarker = ref(null);
+const isFetching = ref(false);
 
 const initMap = () => {
+  if (map.value) return; // Prevent multiple map initializations
+
   map.value = L.map('map').setView([51.505, -0.09], 13);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors',
   }).addTo(map.value);
+};
 
-  L.marker([51.5, -0.09])
+const updateMap = (lat, lng, locationText) => {
+  if (!map.value) return;
+
+  if (currentMarker.value) {
+    currentMarker.value.remove();
+  }
+
+  map.value.setView([lat, lng], 13);
+  currentMarker.value = L.marker([lat, lng])
     .addTo(map.value)
-    .bindPopup('A sample popup.')
+    .bindPopup(`Location: ${locationText}`)
     .openPopup();
+};
+
+const fetchUserIP = async () => {
+  if (isFetching.value) return;
+
+  isFetching.value = true;
+  isLoading.value = true;
+
+  try {
+    const response = await fetch(
+      'https://geo.ipify.org/api/v2/country,city?apiKey=at_cNIcwBVo9OJNAFYWRa0m6VCRcB0Ue'
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    ipAddress.value = data.ip;
+    location.value = `${data.location.country}, ${data.location.region}`;
+    timezone.value = `UTC ${data.location.timezone}`;
+    isp.value = data.isp;
+
+    updateMap(data.location.lat, data.location.lng, data.location.region);
+  } catch (error) {
+    console.error('Could not fetch the user IP address:', error);
+
+    ipAddress.value = 'Error';
+    location.value = 'Error';
+    timezone.value = 'Error';
+    isp.value = 'Error';
+  } finally {
+    isLoading.value = false;
+    isFetching.value = false;
+  }
 };
 
 onMounted(() => {
   initMap();
+  fetchUserIP();
 });
 
 onBeforeUnmount(() => {
+  if (currentMarker.value) {
+    currentMarker.value.remove();
+  }
   if (map.value) {
     map.value.remove();
+    map.value = null;
   }
 });
 </script>
@@ -160,5 +232,28 @@ h4 {
   width: 100%;
   position: relative;
   z-index: 1;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #2b2dff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.result {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 </style>
