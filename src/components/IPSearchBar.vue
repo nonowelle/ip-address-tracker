@@ -43,6 +43,7 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 const map = ref(null);
 const ipAddress = ref('');
@@ -57,11 +58,13 @@ const initMap = () => {
   if (map.value) return; // Prevent multiple map initializations
 
   map.value = L.map('map').setView([51.505, -0.09], 13);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors',
-  }).addTo(map.value);
+  L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {
+      attribution: '©OpenStreetMap, ©CartoDB',
+      maxZoom: 20,
+    }
+  ).addTo(map.value);
 };
 
 const updateMap = (lat, lng, locationText) => {
@@ -71,11 +74,17 @@ const updateMap = (lat, lng, locationText) => {
     currentMarker.value.remove();
   }
 
+  const fontAwesomeIcon = L.divIcon({
+    html: '<i class="fas fa-map-marker-alt"></i>',
+    iconSize: [24, 24],
+    className: 'custom-div-icon',
+    iconAnchor: [12, 24],
+  });
+
   map.value.setView([lat, lng], 13);
-  currentMarker.value = L.marker([lat, lng])
-    .addTo(map.value)
-    .bindPopup(`Location: ${locationText}`)
-    .openPopup();
+  currentMarker.value = L.marker([lat, lng], { icon: fontAwesomeIcon }).addTo(
+    map.value
+  );
 };
 
 const fetchUserIP = async () => {
@@ -137,7 +146,9 @@ h1 {
   font-weight: 300;
 }
 .hero-background {
-  background: linear-gradient(135deg, #2b2dff 0%, #5757d1 50%, #6c3aff 100%);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(120deg, #2b2dff 0%, #5757d1 60%, #6c3aff 100%);
   min-height: 300px;
   display: flex;
   flex-direction: column;
@@ -146,6 +157,23 @@ h1 {
   color: white;
   text-align: center;
 }
+
+.hero-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('@/assets/pattern-bg-desktop.png') center center / cover
+    no-repeat;
+  opacity: 0.58;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-background > * {
+  position: relative;
+  z-index: 1;
+}
+
 .search-bar {
   display: flex;
   align-items: stretch;
@@ -228,7 +256,7 @@ h4 {
   }
 }
 .map {
-  height: 50vh;
+  height: 70vh;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -255,5 +283,24 @@ h4 {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+}
+
+:deep(.custom-div-icon) {
+  i {
+    color: black;
+    font-size: 48px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+    transform: translateY(-50%);
+  }
+}
+
+.hero-map-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
 }
 </style>
