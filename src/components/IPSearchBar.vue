@@ -253,6 +253,13 @@ button {
   justify-content: center;
   font-size: 24px;
   cursor: pointer;
+
+  &:hover {
+    background: rgb(22, 21, 21);
+  }
+  &:active {
+    background: rgb(22, 21, 21);
+  }
 }
 .ip-info {
   display: flex;
