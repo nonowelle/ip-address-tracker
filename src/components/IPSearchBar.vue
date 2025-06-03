@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <div class="hero-background">
     <h1>IP Address Tracker</h1>
@@ -7,26 +5,58 @@
       <input type="text" placeholder="Search for any IP address or domain" />
       <button>></button>
     </div>
-    <div class="ip-info">
-      <div class="ip-info-item">
-        <h4>IP Address</h4>
-        <p class="result">Result</p>
-      </div>
-      <div class="ip-info-item">
-        <h4>Location</h4>
-        <p class="result">Result</p>
-      </div>
-      <div class="ip-info-item">
-        <h4>Timezone</h4>
-        <p class="result">Result</p>
-      </div>
-      <div class="ip-info-item">
-        <h4>ISP</h4>
-        <p class="result">Result</p>
-      </div>
+  </div>
+  <div class="ip-info">
+    <div class="ip-info-item">
+      <h4>IP Address</h4>
+      <p class="result">Result</p>
+    </div>
+    <div class="ip-info-item">
+      <h4>Location</h4>
+      <p class="result">Result</p>
+    </div>
+    <div class="ip-info-item">
+      <h4>Timezone</h4>
+      <p class="result">Result</p>
+    </div>
+    <div class="ip-info-item">
+      <h4>ISP</h4>
+      <p class="result">Result</p>
     </div>
   </div>
+  <div id="map" class="map"></div>
 </template>
+
+<script setup>
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+const map = ref(null);
+
+const initMap = () => {
+  map.value = L.map('map').setView([51.505, -0.09], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors',
+  }).addTo(map.value);
+
+  L.marker([51.5, -0.09])
+    .addTo(map.value)
+    .bindPopup('A sample popup.')
+    .openPopup();
+};
+
+onMounted(() => {
+  initMap();
+});
+
+onBeforeUnmount(() => {
+  if (map.value) {
+    map.value.remove();
+  }
+});
+</script>
 
 <style scoped lang="scss">
 h1 {
@@ -41,12 +71,8 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 0 0 24px 24px;
-  position: relative;
-  overflow: hidden;
   color: white;
   text-align: center;
-  padding: 2rem 1rem;
 }
 .search-bar {
   display: flex;
@@ -90,6 +116,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   gap: 24px;
   font-size: 18px;
   font-weight: 100;
@@ -98,7 +125,13 @@ button {
   border-radius: 24px;
   padding: 30px 24px;
   color: gray;
-  width: 90vw;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 32%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 h4 {
   font-size: 14px;
@@ -121,5 +154,11 @@ h4 {
     font-weight: bold;
     font-size: 24px;
   }
+}
+.map {
+  height: 50vh;
+  width: 100%;
+  position: relative;
+  z-index: 1;
 }
 </style>
