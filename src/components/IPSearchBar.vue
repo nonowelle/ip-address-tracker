@@ -55,7 +55,7 @@ const currentMarker = ref(null);
 const isFetching = ref(false);
 
 const initMap = () => {
-  if (map.value) return; // Prevent multiple map initializations
+  if (map.value) return;
 
   map.value = L.map('map').setView([51.505, -0.09], 13);
   L.tileLayer(
@@ -95,7 +95,9 @@ const fetchUserIP = async () => {
 
   try {
     const response = await fetch(
-      'https://geo.ipify.org/api/v2/country,city?apiKey=at_cNIcwBVo9OJNAFYWRa0m6VCRcB0Ue'
+      `https://geo.ipify.org/api/v2/country,city?apiKey=${
+        import.meta.env.VITE_IPIFY_API_KEY
+      }`
     );
 
     if (!response.ok) {
