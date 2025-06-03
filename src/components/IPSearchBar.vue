@@ -2,8 +2,13 @@
   <div class="hero-background">
     <h1>IP Address Tracker</h1>
     <div class="search-bar">
-      <input type="text" placeholder="Search for any IP address or domain" />
-      <button>></button>
+      <input
+        type="text"
+        v-model="searchInput"
+        placeholder="Search for any IP address or domain"
+        @keyup.enter="handleSearch"
+      />
+      <button @click="handleSearch">></button>
     </div>
   </div>
   <div class="ip-info">
@@ -53,6 +58,7 @@ const isp = ref('');
 const isLoading = ref(false);
 const currentMarker = ref(null);
 const isFetching = ref(false);
+const searchInput = ref('');
 
 const initMap = () => {
   if (map.value) return;
@@ -122,6 +128,40 @@ const fetchUserIP = async () => {
   } finally {
     isLoading.value = false;
     isFetching.value = false;
+  }
+};
+
+const getLocationByIP = async (ipAddress) => {
+  const url = `https://geo.ipify.org/api/v2/country,city?apiKey=${
+    import.meta.env.VITE_IPIFY_API_KEY
+  }&ipAddress=${ipAddress}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const handleSearch = async () => {
+  if (!searchInput.value.trim()) return;
+
+  isLoading.value = true;
+  try {
+    const data = await getLocationByIP(searchInput.value);
+    if (data) {
+      ipAddress.value = data.ip;
+      location.value = `${data.location.country}, ${data.location.region}`;
+      timezone.value = `UTC ${data.location.timezone}`;
+      isp.value = data.isp;
+      updateMap(data.location.lat, data.location.lng, data.location.region);
+    }
+  } catch (error) {
+    console.error('Error searching IP:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
