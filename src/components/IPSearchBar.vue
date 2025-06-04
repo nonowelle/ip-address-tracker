@@ -352,4 +352,25 @@ h4 {
   z-index: 0;
   pointer-events: none;
 }
+
+@media (max-width: 768px) {
+  .ip-info {
+    flex-direction: column;
+    gap: 12px;
+    width: 80%;
+    padding: 18px 8px;
+    top: 20%;
+  }
+  .ip-info-item {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid grey;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
+}
 </style>
