@@ -354,12 +354,19 @@ h4 {
 }
 
 @media (max-width: 768px) {
+  .hero-background {
+    padding: 32px;
+    min-height: 50vh;
+    justify-content: flex-start;
+  }
   .ip-info {
     flex-direction: column;
     gap: 12px;
-    width: 80%;
+
     padding: 18px 8px;
-    top: 20%;
+    top: 0;
+
+    transform: translate(-50%, 36%);
   }
   .ip-info-item {
     width: 100%;
