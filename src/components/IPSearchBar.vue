@@ -143,17 +143,35 @@ const fetchUserIP = async () => {
   }
 };
 
-const getLocationByIP = async (ipAddress) => {
-  const url = `https://geo.ipify.org/api/v2/country,city?apiKey=${
-    import.meta.env.VITE_IPIFY_API_KEY
-  }&ipAddress=${ipAddress}`;
+const getLocationByIP = async (input) => {
+  const apiKey = import.meta.env.VITE_IPIFY_API_KEY;
+  let url = `https://geo.ipify.org/api/v2/country,city?apiKey=${apiKey}`;
+
+  if (/\D/.test(input)) {
+    url += `&domain=${input}`;
+  } else {
+    url += `&ipAddress=${input}`;
+  }
 
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `API error! status: ${response.status}, message: ${
+          errorData.messages
+            ? errorData.messages.join(', ')
+            : JSON.stringify(errorData)
+        }`
+      );
+    }
     const data = await response.json();
+    console.log('Location Data:', data); // Keep the console log for debugging if needed
     return data;
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error fetching location data:', error);
+
+    return null;
   }
 };
 
@@ -219,8 +237,8 @@ h1 {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('@/assets/pattern-bg-desktop.png') center center / cover
-    no-repeat;
+  background: url('@/assets/images/pattern-bg-desktop.png') center center /
+    cover no-repeat;
   opacity: 0.58;
   z-index: 0;
   pointer-events: none;
