@@ -166,7 +166,7 @@ const getLocationByIP = async (input) => {
       );
     }
     const data = await response.json();
-    console.log('Location Data:', data); // Keep the console log for debugging if needed
+    console.log('Location Data:', data);
     return data;
   } catch (error) {
     console.error('Error fetching location data:', error);
@@ -215,11 +215,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-h1 {
-  color: white;
-  font-size: 36px;
-  font-weight: 300;
-}
+@import '@/assets/main.scss';
 .hero-background {
   position: relative;
   overflow: hidden;
@@ -229,19 +225,21 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--white);
   text-align: center;
 }
 
-.hero-background::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('@/assets/images/pattern-bg-desktop.png') center center /
-    cover no-repeat;
-  opacity: 0.58;
-  z-index: 0;
-  pointer-events: none;
+.hero-background {
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('@/assets/images/pattern-bg-desktop.png') center center /
+      cover no-repeat;
+    opacity: 0.58;
+    z-index: 0;
+    pointer-events: none;
+  }
 }
 
 .hero-background > * {
@@ -255,8 +253,8 @@ h1 {
   justify-content: center;
   width: 100%;
   max-width: 500px;
-  margin-top: 2rem;
-  background-color: white;
+  margin-top: 32px;
+  background-color: var(--white);
   border-radius: 24px;
   font-weight: 100;
 }
@@ -266,23 +264,27 @@ input {
   align-items: center;
   justify-content: center;
   width: 90vw;
+  min-height: 60px;
   padding: 20px 30px;
   font-size: 18px;
-  min-height: 60px;
   border-radius: 24px 0 0 24px;
-  background-color: white;
+  background-color: var(--white);
   border: none;
   outline: none;
-  color: rgb(173, 172, 172);
+  color: var(--very-dark-gray);
 
   &::placeholder {
-    color: #b8b5b5;
+    color: var(--dark-gray);
     opacity: 1;
   }
+  &:active {
+    color: var(--very-dark-gray);
+  }
 }
+
 button {
-  background-color: black;
-  color: white;
+  background-color: var(--black);
+  color: var(--white);
   border-radius: 0 24px 24px 0;
   padding: 0 24px;
   height: auto;
@@ -294,12 +296,14 @@ button {
   cursor: pointer;
 
   &:hover {
-    background: rgb(22, 21, 21);
+    background: var(--very-dark-gray);
   }
+
   &:active {
     background: rgb(22, 21, 21);
   }
 }
+
 .ip-info {
   display: flex;
   align-items: stretch;
@@ -309,7 +313,7 @@ button {
   font-size: 18px;
   font-weight: 100;
   margin-top: 2rem;
-  background-color: white;
+  background-color: var(--white);
   border-radius: 24px;
   padding: 30px 40px;
   color: gray;
@@ -321,11 +325,7 @@ button {
   transform: translateX(-50%);
   z-index: 2;
 }
-h4 {
-  font-size: 14px;
-  font-weight: 200;
-  text-transform: uppercase;
-}
+
 .ip-info-item {
   display: flex;
   flex-direction: column;
@@ -340,12 +340,13 @@ h4 {
     border: none;
   }
   .result {
-    color: black;
+    color: var(--black);
     font-weight: bold;
     font-size: 22px;
     padding-right: 46px;
   }
 }
+
 .map {
   height: 70vh;
   width: 100%;
@@ -377,13 +378,6 @@ h4 {
 }
 
 :deep(.custom-div-icon) {
-  i {
-    color: black;
-    font-size: 48px;
-    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-    transform: translateY(-50%);
-  }
-
   img {
     display: block;
     width: 100%;
@@ -410,9 +404,10 @@ h4 {
 
   .search-bar {
     position: absolute;
-    top: 30%;
+    top: 33%;
     width: 90%;
     max-width: none;
+    margin-top: 0;
   }
 
   .ip-info {
@@ -423,6 +418,7 @@ h4 {
     transform: translate(-50%, 67%);
     margin-top: 0;
   }
+
   .ip-info-item {
     width: 100%;
     border-right: none;
@@ -432,9 +428,20 @@ h4 {
     align-items: center;
     max-width: none;
     border: none;
+
     .result {
       padding-right: 0;
     }
+  }
+  .leaflet-control-container {
+    display: none;
+  }
+}
+
+@media (max-width: 375px) {
+  .search-bar {
+    top: 38%;
+    margin-top: 0;
   }
 }
 </style>
