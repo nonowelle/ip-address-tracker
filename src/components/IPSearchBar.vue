@@ -8,47 +8,50 @@
         placeholder="Search for any IP address or domain"
         @keyup.enter="handleSearch"
       />
-      <button @click="handleSearch">></button>
+      <button @click="handleSearch">
+        <img src="@/assets/images/icon-arrow.svg" alt="Search icon" />
+      </button>
     </div>
   </div>
   <div class="ip-info">
     <div class="ip-info-item">
       <h4>IP Address</h4>
-      <p class="result">
+      <div class="result">
         <span v-if="isLoading" class="loading-spinner"></span>
-        <span v-else>{{ ipAddress || 'No data' }}</span>
-      </p>
+        <p v-else>{{ ipAddress || 'No data' }}</p>
+      </div>
     </div>
     <div class="ip-info-item">
       <h4>Location</h4>
-      <p class="result">
+      <div class="result">
         <span v-if="isLoading" class="loading-spinner"></span>
-        <span v-else>{{ location || 'No data' }}</span>
-      </p>
+        <p class="result-text" v-else>{{ location || 'No data' }}</p>
+      </div>
     </div>
     <div class="ip-info-item">
       <h4>Timezone</h4>
-      <p class="result">
+      <div class="result">
         <span v-if="isLoading" class="loading-spinner"></span>
-        <span v-else>{{ timezone || 'No data' }}</span>
-      </p>
+        <p v-else>{{ timezone || 'No data' }}</p>
+      </div>
     </div>
     <div class="ip-info-item">
       <h4>ISP</h4>
-      <p class="result">
+      <div class="result">
         <span v-if="isLoading" class="loading-spinner"></span>
-        <span v-else>{{ isp || 'No data' }}</span>
-      </p>
+        <p v-else>{{ isp || 'No data' }}</p>
+      </div>
     </div>
   </div>
   <div id="map" class="map"></div>
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@fortawesome/fontawesome-free/css/all.css';
+import iconLocationUrl from '@/assets/images/icon-location.svg';
 
 const map = ref(null);
 const ipAddress = ref('');
@@ -59,6 +62,11 @@ const isLoading = ref(false);
 const currentMarker = ref(null);
 const isFetching = ref(false);
 const searchInput = ref('');
+const isMobile = ref(window.innerWidth <= 768);
+
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
 
 const initMap = () => {
   if (map.value) return;
@@ -80,17 +88,21 @@ const updateMap = (lat, lng, locationText) => {
     currentMarker.value.remove();
   }
 
-  const fontAwesomeIcon = L.divIcon({
-    html: '<i class="fas fa-map-marker-alt"></i>',
-    iconSize: [24, 24],
+  const locationIcon = L.divIcon({
+    html: `<img src="${iconLocationUrl}" alt="marker" />`,
+    iconSize: [30, 40],
     className: 'custom-div-icon',
-    iconAnchor: [12, 24],
+    iconAnchor: [20, 40],
   });
 
-  map.value.setView([lat, lng], 13);
-  currentMarker.value = L.marker([lat, lng], { icon: fontAwesomeIcon }).addTo(
+  map.value.setView([lat, lng], 13, { animate: true });
+  currentMarker.value = L.marker([lat, lng], { icon: locationIcon }).addTo(
     map.value
   );
+
+  if (isMobile.value) {
+    map.value.panBy([0, window.innerHeight * 0.2]);
+  }
 };
 
 const fetchUserIP = async () => {
@@ -167,10 +179,13 @@ const handleSearch = async () => {
 
 onMounted(() => {
   initMap();
+  window.addEventListener('resize', handleResize);
+
   fetchUserIP();
 });
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
   if (currentMarker.value) {
     currentMarker.value.remove();
   }
@@ -240,6 +255,12 @@ input {
   background-color: white;
   border: none;
   outline: none;
+  color: rgb(173, 172, 172);
+
+  &::placeholder {
+    color: #b8b5b5;
+    opacity: 1;
+  }
 }
 button {
   background-color: black;
@@ -263,16 +284,16 @@ button {
 }
 .ip-info {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  min-height: 140px;
   justify-content: center;
-  justify-self: center;
   gap: 24px;
   font-size: 18px;
   font-weight: 100;
   margin-top: 2rem;
   background-color: white;
   border-radius: 24px;
-  padding: 30px 24px;
+  padding: 30px 40px;
   color: gray;
   width: 90%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -285,15 +306,17 @@ button {
 h4 {
   font-size: 14px;
   font-weight: 200;
+  text-transform: uppercase;
 }
 .ip-info-item {
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: stretch;
-  gap: 18px;
-  width: 20%;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex: 1 1 0;
   border-right: 1px solid grey;
+  gap: 12px;
+  max-width: 25%;
 
   &:last-of-type {
     border: none;
@@ -301,7 +324,8 @@ h4 {
   .result {
     color: black;
     font-weight: bold;
-    font-size: 24px;
+    font-size: 22px;
+    padding-right: 46px;
   }
 }
 .map {
@@ -341,6 +365,12 @@ h4 {
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
     transform: translateY(-50%);
   }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .hero-map-lines {
@@ -359,24 +389,33 @@ h4 {
     min-height: 50vh;
     justify-content: flex-start;
   }
+
+  .search-bar {
+    position: absolute;
+    top: 30%;
+    width: 90%;
+    max-width: none;
+  }
+
   .ip-info {
     flex-direction: column;
     gap: 12px;
-
     padding: 18px 8px;
     top: 0;
-
-    transform: translate(-50%, 36%);
+    transform: translate(-50%, 67%);
+    margin-top: 0;
   }
   .ip-info-item {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid grey;
-    padding: 20px;
+    padding: 5px 20px;
     justify-content: center;
     align-items: center;
-    &:last-of-type {
-      border-bottom: none;
+    max-width: none;
+    border: none;
+    .result {
+      padding-right: 0;
     }
   }
 }
