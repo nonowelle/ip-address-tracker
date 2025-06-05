@@ -21,6 +21,13 @@
       >
     </div>
   </div>
+  <IPInfo
+    :ip-address="ipAddress"
+    :location="location"
+    :timezone="timezone"
+    :isp="isp"
+    :is-loading="isLoading"
+  />
   <div class="ip-info">
     <div class="ip-info-item">
       <h4>IP Address</h4>
@@ -56,6 +63,7 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import IPInfo from './IPInfo.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@fortawesome/fontawesome-free/css/all.css';
