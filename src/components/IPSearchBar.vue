@@ -5,7 +5,9 @@
       <input
         type="text"
         v-model="searchInput"
-        placeholder="Search for any IP address or domain"
+        :placeholder="
+          showPlaceholder ? 'Search for any IP address or domain' : ''
+        "
         @keyup.enter="handleSearch"
         :class="{ error: errorMessage }"
         @click="errorMessage = ''"
@@ -80,10 +82,18 @@ const isFetching = ref(false);
 const searchInput = ref('');
 const isMobile = ref(window.innerWidth <= 768);
 const errorMessage = ref('');
+const showPlaceholder = ref(true);
 
 const handleResize = () => {
   isMobile.value = window.innerWidth <= 768;
 };
+
+// Watch for input changes to show placeholder again
+watch(searchInput, (newValue) => {
+  if (newValue.trim()) {
+    showPlaceholder.value = true;
+  }
+});
 
 const initMap = () => {
   if (map.value) return;
@@ -164,21 +174,17 @@ const getLocationByIP = async (input) => {
   const apiKey = import.meta.env.VITE_IPIFY_API_KEY;
   let url = `https://geo.ipify.org/api/v2/country,city?apiKey=${apiKey}`;
 
-  // Reset error message
   errorMessage.value = '';
 
-  // Check if input is a domain (contains www)
   if (input.includes('www.')) {
     url += `&domain=${input}`;
   }
   // Check if input is a valid IP address (only numbers and dots)
   else if (/^\d{1,3}(\.\d{1,3}){3}$/.test(input)) {
     url += `&ipAddress=${input}`;
-  }
-  // Invalid input
-  else {
+  } else {
     errorMessage.value =
-      'Please enter a valid IP address (e.g., 192.168.1.1) or domain (e.g., www.example.com)';
+      'Please enter a valid IP address (e.g., 192.168.1.1) or domain';
     return null;
   }
 
@@ -200,6 +206,7 @@ const getLocationByIP = async (input) => {
 const handleSearch = async () => {
   if (!searchInput.value.trim()) {
     errorMessage.value = 'Please enter an IP address or domain';
+    showPlaceholder.value = false;
     return;
   }
 
