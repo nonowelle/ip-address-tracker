@@ -1,16 +1,18 @@
 <template>
   <div class="hero-background">
     <h1>IP Address Tracker</h1>
-    <div class="search-bar">
+    <div class="search-bar" :class="{ 'has-error': errorMessage }">
       <input
         type="text"
         v-model="searchInput"
         placeholder="Search for any IP address or domain"
         @keyup.enter="handleSearch"
+        :class="{ error: errorMessage }"
       />
       <button @click="handleSearch">
         <img src="@/assets/images/icon-arrow.svg" alt="Search icon" />
       </button>
+      <span v-if="errorMessage" class="error-message">{{ errorMessage }}</span>
     </div>
   </div>
   <div class="ip-info">
@@ -63,6 +65,7 @@ const currentMarker = ref(null);
 const isFetching = ref(false);
 const searchInput = ref('');
 const isMobile = ref(window.innerWidth <= 768);
+const errorMessage = ref('');
 
 const handleResize = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -147,36 +150,44 @@ const getLocationByIP = async (input) => {
   const apiKey = import.meta.env.VITE_IPIFY_API_KEY;
   let url = `https://geo.ipify.org/api/v2/country,city?apiKey=${apiKey}`;
 
-  if (/\D/.test(input)) {
+  // Reset error message
+  errorMessage.value = '';
+
+  // Check if input is a domain (contains www)
+  if (input.includes('www.')) {
     url += `&domain=${input}`;
-  } else {
+  }
+  // Check if input is a valid IP address (only numbers and dots)
+  else if (/^\d{1,3}(\.\d{1,3}){3}$/.test(input)) {
     url += `&ipAddress=${input}`;
+  }
+  // Invalid input
+  else {
+    errorMessage.value =
+      'Please enter a valid IP address (e.g., 192.168.1.1) or domain (e.g., www.example.com)';
+    return null;
   }
 
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        `API error! status: ${response.status}, message: ${
-          errorData.messages
-            ? errorData.messages.join(', ')
-            : JSON.stringify(errorData)
-        }`
-      );
+      errorMessage.value = 'Invalid IP address or domain';
+      return null;
     }
     const data = await response.json();
-    console.log('Location Data:', data);
     return data;
   } catch (error) {
     console.error('Error fetching location data:', error);
-
+    errorMessage.value = 'Failed to fetch data';
     return null;
   }
 };
 
 const handleSearch = async () => {
-  if (!searchInput.value.trim()) return;
+  if (!searchInput.value.trim()) {
+    errorMessage.value = 'Please enter an IP address or domain';
+    return;
+  }
 
   isLoading.value = true;
   try {
@@ -215,7 +226,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/main.scss';
+@use '@/assets/main.scss';
 .hero-background {
   position: relative;
   overflow: hidden;
@@ -257,6 +268,13 @@ onBeforeUnmount(() => {
   background-color: var(--white);
   border-radius: 24px;
   font-weight: 100;
+  position: relative;
+
+  &.has-error {
+    input {
+      color: white;
+    }
+  }
 }
 
 input {
@@ -272,6 +290,10 @@ input {
   border: none;
   outline: none;
   color: var(--very-dark-gray);
+
+  &.error {
+    border: 2px solid #ff4444;
+  }
 
   &::placeholder {
     color: var(--dark-gray);
@@ -393,6 +415,17 @@ button {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+}
+
+.error-message {
+  color: #ff4444;
+  font-size: 14px;
+
+  text-align: left;
+  position: absolute;
+
+  left: 16px;
+  top: 16px;
 }
 
 @media (max-width: 768px) {
