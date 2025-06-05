@@ -8,11 +8,17 @@
         placeholder="Search for any IP address or domain"
         @keyup.enter="handleSearch"
         :class="{ error: errorMessage }"
+        @click="errorMessage = ''"
       />
       <button @click="handleSearch">
         <img src="@/assets/images/icon-arrow.svg" alt="Search icon" />
       </button>
-      <span v-if="errorMessage" class="error-message">{{ errorMessage }}</span>
+      <span
+        v-if="errorMessage"
+        class="error-message"
+        @click="errorMessage = ''"
+        >{{ errorMessage }}</span
+      >
     </div>
   </div>
   <div class="ip-info">
