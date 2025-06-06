@@ -65,9 +65,9 @@ Areas I want to continue focusing on in future projects:
 
 ## Author
 
-- Website - [Marie-](menoel.com)
-- GitHub - [@yourusername](https://github.com/nonowelle)
-- LinkedIn - [Your Name](https://www.linkedin.com/in/marie-%C3%A8ve-no%C3%ABl/)
+- Website - [Marie-Eve Noel](menoel.com)
+- GitHub - [@nonowelle](https://github.com/nonowelle)
+- LinkedIn - [Marie-Eve Noel](https://www.linkedin.com/in/marie-%C3%A8ve-no%C3%ABl/)
 
 ---
 
