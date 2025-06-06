@@ -1,12 +1,12 @@
 <script setup>
-import IPSearchBar from './components/IPSearchBar.vue';
+import SearchPage from './components/SearchPage.vue';
 </script>
 
 <template>
   <header></header>
 
   <main>
-    <IPSearchBar />
+    <SearchPage />
   </main>
 </template>
 
