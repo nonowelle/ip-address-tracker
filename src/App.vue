@@ -4,16 +4,7 @@ import SearchPage from './components/SearchPage.vue';
 
 <template>
   <header></header>
-
   <main>
     <SearchPage />
   </main>
 </template>
-
-<style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-</style>
