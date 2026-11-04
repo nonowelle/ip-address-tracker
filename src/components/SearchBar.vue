@@ -31,7 +31,6 @@ const showPlaceholder = ref(true);
 
 const emit = defineEmits(['search']);
 
-// Watch for input changes to show placeholder again
 watch(searchInput, (newValue) => {
   if (newValue.trim()) {
     showPlaceholder.value = true;
@@ -45,7 +44,6 @@ const getLocationByIP = async (input) => {
   if (input.includes('www.')) {
     url += `&domain=${input}`;
   }
-  // Check if input is a valid IP address (only numbers and dots)
   else if (/^\d{1,3}(\.\d{1,3}){3}$/.test(input)) {
     url += `&ipAddress=${input}`;
   } else {
